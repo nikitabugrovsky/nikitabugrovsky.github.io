@@ -2,7 +2,7 @@ title: "Yet Another DevOps Journey"
 author: "Nikita Bugrovsky"
 description: "My nerd life"
 more: "read more »" 
-url: "https://nikitabugrovsky.github.io"
+url: ""
 baseurl: ""
 paginate: 2
 permalink: pretty
@@ -30,4 +30,7 @@ links: # see http://fontawesome.io/icons/#brand for all possible icons
 
 defaults: [{scope: {path: ""}, values: {layout: "default"}}, {scope: {path: "", type: "posts"}, values: {comments: true}}]
 sass: {style: expanded}
-plugins: [jekyll-remote-theme, jekyll-feed, jekyll-paginate]
+plugins: 
+  - jekyll-remote-theme
+  - jekyll-feed
+  - jekyll-paginate
