@@ -8,7 +8,7 @@ paginate: 2
 permalink: pretty
 excerpt_separator: "\n\n\n" # two blank lines
 
-remote_theme: "niklasbuschmann/contrast"
+remote_theme: "niklasbuschmann/contrast@gh-pages"
 
 style:
   minimalist: true
