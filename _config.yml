@@ -2,8 +2,8 @@ title: "Yet Another DevOps Journey"
 author: "Nikita Bugrovsky"
 description: "My nerd life"
 more: "read more »" 
-url: "https://nikitabugrovsky.github.io/"
-baseurl: "/blog"
+url: "https://nikitabugrovsky.github.io"
+baseurl: ""
 paginate: 2
 permalink: pretty
 excerpt_separator: "\n\n\n" # two blank lines
