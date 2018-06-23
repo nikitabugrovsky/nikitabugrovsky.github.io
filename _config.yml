@@ -3,7 +3,7 @@ author: "Nikita Bugrovsky"
 description: "My nerd life"
 more: "read more »" 
 url: ""
-baseurl: ""
+baseurl: "https://nikitabugrovsky.github.io/"
 paginate: 2
 permalink: pretty
 excerpt_separator: "\n\n\n" # two blank lines
@@ -25,7 +25,6 @@ comments:
 
 links: # see http://fontawesome.io/icons/#brand for all possible icons
   - github: "https://github.com/nikitabugrovsky"
-#  - envelope: "mailto:bugrovsky.nikita@gmail.com"
   - linkedin: "https://www.linkedin.com/in/nikitabugrovsky/"
 
 defaults: [{scope: {path: ""}, values: {layout: "default"}}, {scope: {path: "", type: "posts"}, values: {comments: true}}]
