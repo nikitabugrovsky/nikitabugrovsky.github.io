@@ -8,8 +8,6 @@ paginate: 2
 permalink: pretty
 excerpt_separator: "\n\n\n" # two blank lines
 
-remote_theme: "niklasbuschmann/contrast@gh-pages"
-
 style:
   minimalist: true
   dark: false
@@ -30,6 +28,5 @@ links: # see http://fontawesome.io/icons/#brand for all possible icons
 defaults: [{scope: {path: ""}, values: {layout: "default"}}, {scope: {path: "", type: "posts"}, values: {comments: true}}]
 sass: {style: expanded}
 plugins: 
-  - jekyll-remote-theme
   - jekyll-feed
   - jekyll-paginate
