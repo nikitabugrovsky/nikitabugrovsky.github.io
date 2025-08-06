@@ -1,0 +1,30 @@
+/* Override this file to customise the theme's CSS for your site */
+/* Bigger social links font size */
+.aside__social-links a i {
+    font-size: 2rem;
+}
+
+/* Change logo color on hover */
+a.page__logo-inner:hover,
+a.page__logo-inner:active {
+    background-color: var(--hover);
+}
+
+/* Profile picture style */
+.aside__photo {
+    text-align: left;
+    margin: 0.25rem 0;
+}
+
+.aside__photo img {
+    max-width: 100px;
+    height: auto;
+    border-radius: 50%;
+    border: 2px solid var(--logo);
+}
+
+.aside__about::after {
+    content: "";
+    display: table;
+    clear: both;
+}

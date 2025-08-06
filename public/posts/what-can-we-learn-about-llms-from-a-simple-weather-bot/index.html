@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><title>What Can We Learn About LLMs From a Simple Weather Bot &ndash; nikitabugrovsky</title>
+<meta name="description" content="I am a Principal Software Engineer at Red Hat
+with a passion for open-source projects and cloud-native development.
+I am experienced in Linux systems, DevOps and Kubernetes.
+I love solving challenges at the cutting edge of technology.">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8"/>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.4/css/academicons.min.css" integrity="sha512-IW0nhlW5MgNydsXJO40En2EoCkTTjZhI3yuODrZIc8cQ4h1XcF53PsqDHa09NqnkXuIe0Oiyyj171BqZFwISBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+<link rel="stylesheet" href="http://localhost:1313/css/palettes/gruvbox-pale.css">
+<link rel="stylesheet" href="http://localhost:1313/css/risotto.css">
+<link rel="stylesheet" href="http://localhost:1313/css/custom.css">
+
+
+
+
+
+
+
+</head>
+
+    <body>
+        <div class="page">
+
+            <header class="page__header"><nav class="page__nav main-nav">
+    <ul>
+    <h1 class="page__logo"><a href="http://localhost:1313/" class="page__logo-inner">nikitabugrovsky</a></h1>
+    
+    
+    <li class="main-nav__item"><a class="nav-main-item" href="http://localhost:1313/about/" title="">About</a></li>
+    
+    <li class="main-nav__item"><a class="nav-main-item" href="http://localhost:1313/posts/" title="">Posts</a></li>
+    
+    </ul>
+</nav>
+
+</header>
+
+            <section class="page__body">
+    <header class="content__header">
+        <h1>What Can We Learn About LLMs From a Simple Weather Bot</h1>
+    </header>
+    <div class="content__body">
+        <p>When we build applications with Large Language Models (LLMs), one of the most powerful capabilities we can unlock is function calling. This post explores how two different models, Google&rsquo;s Gemini and the open model Gemma, approach this task. While both rely on a shared philosophy—the Natural Language Interface (NLI)—their implementations reveal two distinct engineering experiences.</p>
+<p>The idea for this weather bot was born from the official <a href="https://ai.google.dev/gemini-api/docs/function-calling?example=weather">Google Gemini documentation on function calling</a>, which makes it clear that while the LLM can <em>suggest</em> calling a function, it is our responsibility to implement <strong>and</strong> call that function.</p>
+<p>Using a simple weather bot as our case study, we will explore these two NLI implementations and the practical implications they have on our workflow, from initial setup to long-term maintenance.</p>
+<h2 id="the-goal-a-smart-conversational-weather-bot">The Goal: A Smart, Conversational Weather Bot</h2>
+<p>Let&rsquo;s explain what our bot is capable of. The bot is not only sends requests to remote weather API &amp; gets responces. It is able to hold a conversation, remember things, although its &ldquo;memory&rdquo; is very short.</p>
+<p>It&rsquo;s important to note that models served either from remote APIs (Gemini) or locally via Ollama (Gemma) are used for bot&rsquo;s reasoning. Those models do not have any tools enabled by default. The core logic, which applies to <em>both</em> Gemini and Gemma models, follows a two-step interaction flow:</p>
+<ol>
+<li>
+<p><strong>Understand the Request:</strong> The user asks for the weather. The LLM&rsquo;s first job is to understand the user&rsquo;s intent and determine that it needs to call the <a href="https://github.com/nikitabugrovsky/multi-model-function-calling-chatbot/blob/main/tools/weather_tool.py#L166-L171">get_current_weather</a> function. It also needs to extract the necessary arguments, such as <code>location=&quot;New York&quot;</code>.</p>
+</li>
+<li>
+<p><strong>Summarize the Result:</strong> The raw data from the weather API is then fed back to the LLM. The model&rsquo;s second job is to take this structured data and generate a natural, human-readable sentence, such as, &ldquo;The weather in New York is currently 75 degrees and sunny.&rdquo;</p>
+</li>
+</ol>
+<p>This two-step process establishes the baseline interaction pattern we want to achieve, regardless of which AI model is powering the bot. It&rsquo;s a simple yet powerful demonstration of how LLMs can act as a reasoning engine to interact with external tools.</p>
+<p>The complete source code for the bot is available on <a href="https://github.com/nikitabugrovsky/multi-model-function-calling-chatbot">GitHub</a>.</p>
+<h2 id="how-llm-models-think-a-shared-nli-approach-with-different-implementations">How LLM Models Think: A Shared NLI Approach with Different Implementations</h2>
+<p>Both models use a <strong>Natural Language Interface (NLI)</strong> for function calling. It means effectively that LLMs are given instructions in natural language and use their reasoning capabilities to decide when to call a tool. The key difference lies in how this NLI is implemented and what that means for us as engineers.</p>
+<h3 id="gemini-native-integrated-nli">Gemini: Native, Integrated NLI</h3>
+<p>With large models like Gemini, the NLI is a <strong>natively integrated feature of the API</strong>. As engineers, we describe our tools using a structured <a href="https://github.com/nikitabugrovsky/multi-model-function-calling-chatbot/blob/main/clients/genai_client.py#L20-L33">JSON schema</a> and provide it with our prompt. Gemini then uses its advanced, built-in reasoning to understand the user&rsquo;s intent, select the right tool, and generate a structured function call object. It&rsquo;s a clean, reliable interaction where the complexity is handled by the model.</p>
+<h3 id="gemma-custom-tailored-nli">Gemma: Custom, Tailored NLI</h3>
+<p>Gemma, as an open model, also uses an NLI, but it requires us to <strong>explicitly implement the pattern through prompt engineering</strong>. Instead of a built-in API feature, we provide a detailed <a href="https://github.com/nikitabugrovsky/multi-model-function-calling-chatbot/blob/main/clients/ollama_client.py#L27-L48">system prompt</a> that explains the tools, their parameters, and the exact JSON format the model should output. The model isn&rsquo;t &ldquo;calling a tool&rdquo;; it&rsquo;s using the instructions we provided to <strong>generate text that is essentially a JSON function call</strong>. This places more responsibility on our prompt engineering skills to ensure the model&rsquo;s output is consistently in the correct format, which our application code must then parse.</p>
+<h2 id="bridging-the-gap-for-gemma-models">Bridging the Gap for Gemma Models</h2>
+<p>Usually the Gemma model approach requires more involvement from an engineer to avoid hallucinations. Hence we need to focus on the specific techniques we can use to make model responses reliable.</p>
+<h3 id="the-few-shot-prompting-strategy">The &ldquo;Few-Shot Prompting&rdquo; Strategy</h3>
+<p>This is the key strategy to make our NLI implementation robust. As seen in the <a href="https://github.com/nikitabugrovsky/multi-model-function-calling-chatbot/blob/main/clients/ollama_client.py"><code>ollama_client.py</code></a>, we provide examples in the system prompt to &ldquo;teach&rdquo; the model how to behave:</p>
+<ol>
+<li><strong>A simple greeting:</strong> This teaches the model when <em>not</em> to call a tool.</li>
+<li><strong>A complete, multi-turn weather query:</strong> This shows the model the full end-to-end flow: identifying the user&rsquo;s intent, formatting the JSON, summarizing the result, and even answering a follow-up question.</li>
+</ol>
+<p>This highlights a fundamental difference in the engineering experience. With Gemini, we are focusing on the API. With Gemma models, we master the art of the prompt and introduce prompt parsing. In both cases, we rely on the model&rsquo;s reasoning capabilities to get an appropriate response.</p>
+<h2 id="managing-memory-a-universal-challenge-with-unique-solutions">Managing Memory: A Universal Challenge with Unique Solutions</h2>
+<p>All conversational AI needs memory management to avoid high costs and manage context limits effectively.</p>
+<h3 id="general-approach-the-sliding-window">General Approach: The Sliding Window</h3>
+<p>A simple, effective solution for both models is the &ldquo;sliding window,&rdquo; where only the most recent parts of the conversation are kept in memory. This is implemented in both clients to manage the conversation history.</p>
+<h3 id="the-hybrid-approach-for-gemma-model">The Hybrid Approach for Gemma Model</h3>
+<p>The <a href="https://github.com/nikitabugrovsky/multi-model-function-calling-chatbot/blob/main/clients/ollama_client.py"><code>OllamaClient</code></a> demonstrates a nuanced approach. The critical &ldquo;few-shot&rdquo; examples in the prompt must always be present, so the sliding window only applies to the <em>actual</em> user conversation. This reinforces the theme that models like Gemma often require more manual, bespoke engineering approach to achieve the same level of sophistication.</p>
+<h2 id="conclusion-the-right-llm-for-the-job">Conclusion: The Right LLM for the Job</h2>
+<p>Our simple weather bot, despite its simplicity, has provided a clear lens through which to view the practical differences in modern LLM development. The choice is about which implementation of the Natural Language Interface (NLI) best suits our project&rsquo;s needs. Here are the key takeaways:</p>
+<h3 id="1-the-foundation-is-the-same-its-all-nli">1. The Foundation is the Same: It’s All NLI</h3>
+<p>At their core, both Gemini and Gemma models use reasoning to interpret natural language instructions and decide when to call a function. Both models rely on the descriptive power of the context we provide. This shared foundation means we are always in the business of clearly defining our tools and goals.</p>
+<h3 id="2-engineering-experience">2. Engineering Experience</h3>
+<p>The primary difference lies in <em>how</em> we provide that context:</p>
+<ul>
+<li><strong>Gemini&rsquo;s Integrated NLI</strong> offers an <strong>API-centric</strong> experience. Our main task is to create a structured <a href="https://github.com/nikitabugrovsky/multi-model-function-calling-chatbot/blob/main/clients/genai_client.py#L20-L33">JSON schema</a> that defines our tools. The model handles the complex reasoning internally, providing a clean, predictable function call object. This path prioritizes ease of use and reliability.</li>
+<li><strong>Gemma&rsquo;s Explicit NLI</strong> demands a <strong>prompt-centric</strong> experience. Our main task is to become prompt engineers, carefully crafting a <a href="https://github.com/nikitabugrovsky/multi-model-function-calling-chatbot/blob/main/clients/ollama_client.py#L27-L48">system prompt</a> with instructions, examples, and the desired output format. This path gives us maximum control but requires more effort in both prompt design and parsing the model&rsquo;s output correctly. Model&rsquo;s context window gains extra importance in this case.</li>
+</ul>
+<h3 id="3-the-choice-depends-on-our-project-goals">3. The Choice Depends on Our Project Goals</h3>
+<p>Ultimately, there is no single &ldquo;best&rdquo; approach. The decision hinges on the project&rsquo;s specific needs:</p>
+<ul>
+<li><strong>Choose the Gemini (Integrated) approach</strong> when speed of development and out-of-the-box reliability are key. It is ideal for prototypes, applications with rapidly changing tools, or teams that prefer to work with structured APIs over complex prompts.</li>
+<li><strong>Choose the Gemma (Explicit) approach</strong> when control, customization, and privacy (when deployed locally) are paramount. It is perfect for applications where we need to fine-tune the model&rsquo;s behavior, operate in a completely offline environment, or have strict requirements for data handling.</li>
+</ul>
+
+    </div>
+    <footer class="content__footer"></footer>
+
+            </section>
+
+            <section class="page__aside">
+                <div class="aside__about">
+<div class="aside__about">
+    <div class="aside__photo">
+        <img src="/images/me.png" alt="A photo of Nikita Bugrovsky">
+    </div>
+<h1 class="about__title">Nikita Bugrovsky</h1>
+<p class="about__description">I am a Principal Software Engineer at Red Hat
+with a passion for open-source projects and cloud-native development.
+I am experienced in Linux systems, DevOps and Kubernetes.
+I love solving challenges at the cutting edge of technology.</p>
+</div>
+
+
+<ul class="aside__social-links">
+    
+    <li>
+        <a href="https://github.com/nikitabugrovsky" rel="me" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>&nbsp;
+    </li>
+    
+    <li>
+        <a href="https://www.linkedin.com/in/nikitabugrovsky" rel="me" aria-label="LinkedIn" title="LinkedIn"><i class="fa-brands fa-linkedin" aria-hidden="true"></i></a>&nbsp;
+    </li>
+    
+</ul>
+</div>
+                <hr>
+                <div class="aside__content">
+    
+    
+        <p>
+            
+            2025-08-06
+        </p>
+    
+
+    
+	    <hr>
+	    On this page:
+	    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#the-goal-a-smart-conversational-weather-bot">The Goal: A Smart, Conversational Weather Bot</a></li>
+    <li><a href="#how-llm-models-think-a-shared-nli-approach-with-different-implementations">How LLM Models Think: A Shared NLI Approach with Different Implementations</a>
+      <ol>
+        <li><a href="#gemini-native-integrated-nli">Gemini: Native, Integrated NLI</a></li>
+        <li><a href="#gemma-custom-tailored-nli">Gemma: Custom, Tailored NLI</a></li>
+      </ol>
+    </li>
+    <li><a href="#bridging-the-gap-for-gemma-models">Bridging the Gap for Gemma Models</a>
+      <ol>
+        <li><a href="#the-few-shot-prompting-strategy">The &ldquo;Few-Shot Prompting&rdquo; Strategy</a></li>
+      </ol>
+    </li>
+    <li><a href="#managing-memory-a-universal-challenge-with-unique-solutions">Managing Memory: A Universal Challenge with Unique Solutions</a>
+      <ol>
+        <li><a href="#general-approach-the-sliding-window">General Approach: The Sliding Window</a></li>
+        <li><a href="#the-hybrid-approach-for-gemma-model">The Hybrid Approach for Gemma Model</a></li>
+      </ol>
+    </li>
+    <li><a href="#conclusion-the-right-llm-for-the-job">Conclusion: The Right LLM for the Job</a>
+      <ol>
+        <li><a href="#1-the-foundation-is-the-same-its-all-nli">1. The Foundation is the Same: It’s All NLI</a></li>
+        <li><a href="#2-engineering-experience">2. Engineering Experience</a></li>
+        <li><a href="#3-the-choice-depends-on-our-project-goals">3. The Choice Depends on Our Project Goals</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+    
+
+                </div>
+            </section>
+
+            <footer class="page__footer"><p class="copyright"><p>© Nikita Bugrovsky.</p>
+<p>Opinions are mine &amp; may not reflect the position of a company I work for.</p>
+</p>
+<p class="advertisement">Powered by <a href="https://gohugo.io/">hugo</a> and <a href="https://github.com/joeroe/risotto">risotto</a>.</p>
+</footer>
+
+        </div>
+    </body>
+
+</html>

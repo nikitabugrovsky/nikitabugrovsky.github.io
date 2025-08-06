@@ -1,0 +1,73 @@
+baseURL = "https://bugrovsky.com"
+title = "nikitabugrovsky"
+author = "Nikita Bugrovsky"
+theme = "risotto"
+copyright = """© Nikita Bugrovsky.\n
+Opinions are mine & may not reflect the position of a company I work for."""
+
+[languages]
+    [languages.en]
+        languageCode = 'en-US'
+        languageDirection = 'ltr'
+        languageName = 'English'
+        weight = 1
+
+[params.theme]
+palette = "gruvbox-pale"
+
+# Automatically add content sections to main menu
+sectionPagesMenu = "main"
+
+[pagination]
+pagerSize = 3
+
+[params]
+noindex = false
+
+[params.about]
+title = "Nikita Bugrovsky"
+description = """I am a Principal Software Engineer at Red Hat
+with a passion for open-source projects and cloud-native development.
+I am experienced in Linux systems, DevOps and Kubernetes.
+I love solving challenges at the cutting edge of technology."""
+
+[[params.socialLinks]]
+icon = "fa-brands fa-github"
+title = "GitHub"
+url = "https://github.com/nikitabugrovsky"
+
+[[params.socialLinks]]
+icon = "fa-brands fa-linkedin"
+title = "LinkedIn"
+url = "https://www.linkedin.com/in/nikitabugrovsky"
+
+[menu]
+
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 10
+
+  [[menu.main]]
+    identifier = "posts"
+    name = "Posts"
+    url = "/posts/"
+    weight = 10
+
+[taxonomies]
+category = "categories"
+tag = "tags"
+series = "series"
+
+[markup.goldmark.renderer]
+unsafe = true
+
+[markup]
+
+  # Table of contents
+  # Add toc = true to content front matter to enable
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel   = 3
+    ordered    = true
