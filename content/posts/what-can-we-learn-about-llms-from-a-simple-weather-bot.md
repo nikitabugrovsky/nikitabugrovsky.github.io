@@ -1,7 +1,7 @@
 +++
 date = '2025-08-06T21:05:03+03:00'
 draft = false
-toc = true
+toc = false
 title = 'What Can We Learn About LLMs From a Simple Weather Bot?'
 +++
 

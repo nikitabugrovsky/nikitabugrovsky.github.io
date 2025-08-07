@@ -1,4 +1,13 @@
 {{ define "main" }}
-    {{ .Content }}
+    <section class="recent-posts">
+        <h1>Recent Posts</h1>
+        <ul>
+            {{ range first 10 (where .Site.RegularPages "Type" "posts") }}
+            <li>
+                <a href="{{ .Permalink }}">{{ .Title }}</a>
+                <div class="post-meta">{{ .Date.Format "2 January 2006" }}</div>
+            </li>
+            {{ end }}
+        </ul>
+    </section>
 {{ end }}
-

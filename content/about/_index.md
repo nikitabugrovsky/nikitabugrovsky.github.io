@@ -5,10 +5,9 @@ toc= true
 title = 'About'
 +++
 
-
 **Hello!**
 
-I'm Nikita, a Principal Software Engineer currently working at Red Hat in Israel.
+I'm Nikita, a Principal Software Engineer currently working at Red Hat.
 I'm passionate about building and refining technology, with a special interest in DevOps,
 cloud infrastructure, hyperscalers, and open-source projects. Throughout my career,
 - I've had the opportunity to work with a range of tools like Kubernetes, Jenkins, Terraform and many more.

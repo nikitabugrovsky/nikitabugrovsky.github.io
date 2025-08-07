@@ -13,11 +13,11 @@ a.page__logo-inner:active {
 /* Profile picture style */
 .aside__photo {
     text-align: left;
-    margin: 0.25rem 0;
+    margin: 0 1rem 0 0;
 }
 
 .aside__photo img {
-    max-width: 100px;
+    max-width: 120px;
     height: auto;
     border-radius: 50%;
     border: 2px solid var(--logo);
