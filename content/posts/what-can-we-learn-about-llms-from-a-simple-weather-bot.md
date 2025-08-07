@@ -2,7 +2,7 @@
 date = '2025-08-06T21:05:03+03:00'
 draft = false
 toc = true
-title = 'What Can We Learn About LLMs From a Simple Weather Bot'
+title = 'What Can We Learn About LLMs From a Simple Weather Bot?'
 +++
 
 When we build applications with Large Language Models (LLMs), one of the most powerful capabilities we can unlock is function calling. This post explores how two different models, Google's Gemini and the open model Gemma, approach this task. While both rely on a shared philosophy—the Natural Language Interface (NLI)—their implementations reveal two distinct engineering experiences.

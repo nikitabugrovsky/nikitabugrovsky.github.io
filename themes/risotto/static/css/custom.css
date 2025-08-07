@@ -28,3 +28,9 @@ a.page__logo-inner:active {
     display: table;
     clear: both;
 }
+
+/* Horizontal rule style */
+hr:after {
+    content: '';
+    color: var(--muted);
+}
